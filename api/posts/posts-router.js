@@ -60,7 +60,39 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-     // finish this to update a post in the database
+     const { title, contents } = req.body;
+     if (!title || !contents) {
+          res.status(400).json({
+               message: "Please provide title and contents for the post"
+          })
+     }
+     else {
+          POSTS.findById(req.params.id)
+               .then(post => {
+                    if (!post) {
+                         res.status(404).json({
+                              message: "The post with the specified ID does not exist"
+                         })
+                    }
+                    else {
+                         return POSTS.update(req.params.id, req.body)
+                    }
+               })
+               .then(post => {
+                    if (post) {
+                         return POSTS.findById(req.params.id)
+                    }
+               })
+               .then(post => {
+                    res.status(201).json(post)
+               })
+               .catch(err => {
+                    res.status(500).json({
+                         message: "The post information could not be modified"
+                    })
+               })
+
+     }
 });
 
 router.delete('/:id', (req, res) => {
